@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Text;
 using System.Threading;
 
 namespace UtilityExtensions.Core.Services
@@ -14,22 +13,22 @@ namespace UtilityExtensions.Core.Services
             public BackgroundWorker worker;
         }
 
-        private List<ServiceHandler> handlers = new List<ServiceHandler>();
+        private readonly List<ServiceHandler> handlers = new();
 
         /// <summary>
         /// </summary>
         /// <exception cref="ArgumentNullException"> </exception>
         /// <param name="service"> </param>
-        public override void AddService(BackgroundService service)
+        public override void AddService(BackgroundService service, ServiceSettings settings = default)
         {
             base.AddService(service);
 
-            var bw = new BackgroundWorker();
+            BackgroundWorker bw = new BackgroundWorker();
 
-            bw.DoWork += new DoWorkEventHandler(
+            bw.DoWork += new(
             delegate (object o, DoWorkEventArgs args)
             {
-                while (service.enabled)
+                while (service.enabled && !bw.CancellationPending)
                 {
                     try
                     {
@@ -38,6 +37,11 @@ namespace UtilityExtensions.Core.Services
                         service.Execute();
 
                         settings.OnAfterExecute?.Invoke(service);
+                        if (bw.CancellationPending)
+                        {
+                            args.Cancel = true;
+                            break;
+                        }
 
                         Thread.Sleep(service.interval);
                     }
@@ -48,11 +52,13 @@ namespace UtilityExtensions.Core.Services
                 }
             });
 
-            bw.RunWorkerCompleted += new RunWorkerCompletedEventHandler(
+            bw.RunWorkerCompleted += new(
             delegate (object o, RunWorkerCompletedEventArgs args)
             {
-                if (service.enabled)
+                if (service.enabled && !bw.CancellationPending)
+                {
                     bw.RunWorkerAsync();
+                }
             });
 
             handlers.Add(new ServiceHandler { service = service, worker = bw });
@@ -65,9 +71,11 @@ namespace UtilityExtensions.Core.Services
         public void AddServices(List<BackgroundService> services)
         {
             if (services == null)
+            {
                 throw new ArgumentNullException(nameof(services));
+            }
 
-            foreach (var service in services)
+            foreach (BackgroundService service in services)
             {
                 AddService(service);
             }
@@ -75,10 +83,12 @@ namespace UtilityExtensions.Core.Services
 
         public override void Run()
         {
-            foreach (var handler in handlers)
+            foreach (ServiceHandler handler in handlers)
             {
                 if (!handler.worker.IsBusy)
+                {
                     handler.worker.RunWorkerAsync();
+                }
             }
         }
     }

@@ -13,7 +13,10 @@ namespace UtilityExtensions.Extensions
         public static List<T> ToList<T>(this T[,] twoDimensionalArray)
         {
             if (twoDimensionalArray == null)
+            {
                 return null;
+            }
+
             List<T> result = new List<T>();
 
             for (int i = 0; i < twoDimensionalArray.GetLength(0); i++)
@@ -37,7 +40,9 @@ namespace UtilityExtensions.Extensions
         public static bool ValidCoordinates<T>(this T[,] twoDimensionalArray, int x, int y)
         {
             if (twoDimensionalArray == null)
+            {
                 return false;
+            }
 
             return (x >= 0 && x < twoDimensionalArray.GetLength(0) &&
                     y >= 0 && y < twoDimensionalArray.GetLength(1));
@@ -99,9 +104,15 @@ namespace UtilityExtensions.Extensions
         public static bool Check2DArray<T>(this T[,] data, T[,] find, EqualityComparer<T> comparer = null)
         {
             if (data == null || find == null)
+            {
                 return false;
+            }
+
             if (comparer == null)
+            {
                 comparer = EqualityComparer<T>.Default;
+            }
+
             int dataLen = data.Length; // length of the whole data
             int findLen = find.Length; // length of the whole find
 
@@ -132,7 +143,9 @@ namespace UtilityExtensions.Extensions
                     okay = comparer.Equals(data[dataY + findY, dataX + findX], find[findY, findX]); // check if it matches
                 }
                 if (okay) // if all values from both fragments are equal
+                {
                     return true; // return true
+                }
             }
             return false;
         }

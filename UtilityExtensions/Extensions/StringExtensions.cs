@@ -14,7 +14,9 @@ namespace UtilityExtensions.Extensions
         public static string Plural(this string str, int value, string suffix = "s")
         {
             if (Math.Abs(value) != 1)
+            {
                 return str += suffix;
+            }
 
             return str;
         }
@@ -24,7 +26,9 @@ namespace UtilityExtensions.Extensions
             foreach (char c in str)
             {
                 if (c < '0' || c > '9')
+                {
                     return false;
+                }
             }
 
             return true;
@@ -34,7 +38,7 @@ namespace UtilityExtensions.Extensions
         {
             try
             {
-                var addr = new System.Net.Mail.MailAddress(email);
+                System.Net.Mail.MailAddress addr = new System.Net.Mail.MailAddress(email);
                 return addr.Address == email;
             }
             catch
@@ -112,13 +116,13 @@ namespace UtilityExtensions.Extensions
         public static string Shuffle(this string str)
         {
             char[] array = str.ToCharArray();
-            Random rng = new Random();
+            Random rng = new();
             int n = array.Length;
             while (n > 1)
             {
                 n--;
                 int k = rng.Next(n + 1);
-                var value = array[k];
+                char value = array[k];
                 array[k] = array[n];
                 array[n] = value;
             }
@@ -156,11 +160,16 @@ namespace UtilityExtensions.Extensions
         public static bool ContainsIgnoreCase(this List<string> l, string check)
         {
             if (l == null)
+            {
                 return false;
+            }
+
             for (int i = 0; i < l.Count; i++)
             {
                 if (l[i].ToLower().Trim().RemoveZeroWidthSpace() == check.ToLower().Trim().RemoveZeroWidthSpace())
+                {
                     return true;
+                }
             }
 
             return false;
@@ -184,7 +193,10 @@ namespace UtilityExtensions.Extensions
         public static DateTime ToDateTime(this string str, string format = "yyyy-MM-dd HH:mm:ss", DateTime @default = default, IFormatProvider culture = null, DateTimeStyles style = DateTimeStyles.None)
         {
             if (culture == null)
+            {
                 culture = CultureInfo.InvariantCulture;
+            }
+
             try
             {
                 return DateTime.ParseExact(str, format, culture, style);
@@ -203,12 +215,18 @@ namespace UtilityExtensions.Extensions
         public static TimeSpan ToTimeSpan(this string str, TimeSpan @default = default, IFormatProvider format = null)
         {
             if (format == null)
+            {
                 format = CultureInfo.InvariantCulture;
-            TimeSpan temp;
-            if (TimeSpan.TryParse(str, format, out temp))
+            }
+
+            if (TimeSpan.TryParse(str, format, out TimeSpan temp))
+            {
                 return temp;
+            }
             else
+            {
                 return @default;
+            }
         }
 
         /// <summary>
@@ -218,12 +236,18 @@ namespace UtilityExtensions.Extensions
         public static int ToInt(this string str, int @default = 0, IFormatProvider format = null, NumberStyles style = NumberStyles.Any)
         {
             if (format == null)
+            {
                 format = CultureInfo.InvariantCulture;
-            int temp;
-            if (int.TryParse(str, style, format, out temp))
+            }
+
+            if (int.TryParse(str, style, format, out int temp))
+            {
                 return temp;
+            }
             else
+            {
                 return @default;
+            }
         }
 
         /// <summary>
@@ -233,12 +257,18 @@ namespace UtilityExtensions.Extensions
         public static long ToLong(this string str, long @default = 0, IFormatProvider format = null, NumberStyles style = NumberStyles.Any)
         {
             if (format == null)
+            {
                 format = CultureInfo.InvariantCulture;
-            long temp;
-            if (long.TryParse(str, style, format, out temp))
+            }
+
+            if (long.TryParse(str, style, format, out long temp))
+            {
                 return temp;
+            }
             else
+            {
                 return @default;
+            }
         }
 
         /// <summary>
@@ -249,12 +279,18 @@ namespace UtilityExtensions.Extensions
         public static double ToDouble(this string str, double @default = 0, IFormatProvider format = null, NumberStyles style = NumberStyles.Any)
         {
             if (format == null)
+            {
                 format = CultureInfo.InvariantCulture;
-            double temp;
-            if (double.TryParse(str, style, format, out temp))
+            }
+
+            if (double.TryParse(str, style, format, out double temp))
+            {
                 return temp;
+            }
             else
+            {
                 return @default;
+            }
         }
 
         /// <summary>
@@ -265,12 +301,18 @@ namespace UtilityExtensions.Extensions
         public static float ToFloat(this string str, float @default = 0, IFormatProvider format = null, NumberStyles style = NumberStyles.Any)
         {
             if (format == null)
+            {
                 format = CultureInfo.InvariantCulture;
-            float temp;
-            if (float.TryParse(str, style, format, out temp))
+            }
+
+            if (float.TryParse(str, style, format, out float temp))
+            {
                 return temp;
+            }
             else
+            {
                 return @default;
+            }
         }
 
         /// <summary>
@@ -281,42 +323,45 @@ namespace UtilityExtensions.Extensions
         public static decimal ToDecimal(this string str, decimal @default = 0, IFormatProvider format = null, NumberStyles style = NumberStyles.Any)
         {
             if (format == null)
+            {
                 format = CultureInfo.InvariantCulture;
-            decimal temp;
-            if (decimal.TryParse(str, style, format, out temp))
+            }
+
+            if (decimal.TryParse(str, style, format, out decimal temp))
+            {
                 return temp;
+            }
             else
+            {
                 return @default;
+            }
         }
 
         /// <summary>
         /// Try to safely convert this string to a bool.
         /// </summary>
-        /// <param name="@default"> The default value. </param>
-        public static bool ToBool(this string str, bool @default = false)
+        public static bool ToBool(this string str, string trueValue = "true")
         {
-            return str.Trim().ToLower().In("true", "1");
+            return str.Trim().ToLower().In(trueValue.ToLower(), "1");
         }
 
         public static string HashMD5(this string str)
         {
-            using (MD5 md5Hash = MD5.Create())
+            using MD5 md5Hash = MD5.Create();
+            // Convert the input string to a byte array and compute the hash.
+            byte[] data = md5Hash.ComputeHash(Encoding.UTF8.GetBytes(str));
+
+            // Create a new Stringbuilder to collect the bytes and create a string.
+            StringBuilder sBuilder = new();
+
+            // Loop through each byte of the hashed data and format each one as a hexadecimal string.
+            for (int i = 0; i < data.Length; i++)
             {
-                // Convert the input string to a byte array and compute the hash.
-                byte[] data = md5Hash.ComputeHash(Encoding.UTF8.GetBytes(str));
-
-                // Create a new Stringbuilder to collect the bytes and create a string.
-                StringBuilder sBuilder = new StringBuilder();
-
-                // Loop through each byte of the hashed data and format each one as a hexadecimal string.
-                for (int i = 0; i < data.Length; i++)
-                {
-                    sBuilder.Append(data[i].ToString("x2"));
-                }
-
-                // Return the hexadecimal string.
-                return sBuilder.ToString();
+                sBuilder.Append(data[i].ToString("x2"));
             }
+
+            // Return the hexadecimal string.
+            return sBuilder.ToString();
         }
     }
 }

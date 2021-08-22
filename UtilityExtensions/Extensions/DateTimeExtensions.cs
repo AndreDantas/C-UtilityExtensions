@@ -29,23 +29,42 @@ namespace UtilityExtensions.Extensions
         public static string DescriptiveTimeDifference(this DateTime now, DateTime other)
         {
             int timeDifference = (other.Date - now.Date).Days;
-            if (timeDifference == 0) return "Today";
-            if (timeDifference == 1) return "Yesterday";
-            if (timeDifference == -1) return "Tomorrow";
+            if (timeDifference == 0)
+            {
+                return "Today";
+            }
+
+            if (timeDifference == 1)
+            {
+                return "Yesterday";
+            }
+
+            if (timeDifference == -1)
+            {
+                return "Tomorrow";
+            }
 
             if (timeDifference > 0)
             {
                 if (timeDifference > 30)
+                {
                     return $"{(timeDifference / 30) } month{((timeDifference / 30) == 1 ? "" : "s")} ago";
+                }
                 else
+                {
                     return $"{timeDifference} day{(timeDifference == 1 ? "" : "s")} ago";
+                }
             }
             else
             {
                 if (timeDifference < -30)
+                {
                     return $"In {(timeDifference / 30)} month{((timeDifference / 30) == -1 ? "" : "s")}";
+                }
                 else
+                {
                     return $"In {timeDifference} day{(timeDifference == -1 ? "" : "s")}";
+                }
             }
         }
     }

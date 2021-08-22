@@ -44,7 +44,9 @@ namespace UtilityExtensions.Core
                 Counter = Time;
             }
             else
+            {
                 IsFinished = false;
+            }
 
             return IsFinished;
         }

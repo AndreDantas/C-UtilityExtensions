@@ -22,17 +22,17 @@ namespace UtilityExtensions.Core.Geometry
             TopLeft, TopRight, BottomRight, BottomLeft
         };
 
-        private Vector2 topLeftRaw { get => new Vector2(Center.x - Width / 2f, Center.y + Height / 2f); }
-        public Vector2 TopLeft { get => Vector2.RotateVector(topLeftRaw, Center, Rotation); }
+        private Vector2 topLeftRaw => new Vector2(Center.x - Width / 2f, Center.y + Height / 2f);
+        public Vector2 TopLeft => Vector2.RotateVector(topLeftRaw, Center, Rotation);
 
-        private Vector2 topRightRaw { get => new Vector2(Center.x + Width / 2f, Center.y + Height / 2f); }
-        public Vector2 TopRight { get => Vector2.RotateVector(topRightRaw, Center, Rotation); }
+        private Vector2 topRightRaw => new Vector2(Center.x + Width / 2f, Center.y + Height / 2f);
+        public Vector2 TopRight => Vector2.RotateVector(topRightRaw, Center, Rotation);
 
-        private Vector2 bottomLeftRaw { get => new Vector2(Center.x - Width / 2f, Center.y - Height / 2f); }
-        public Vector2 BottomLeft { get => Vector2.RotateVector(bottomLeftRaw, Center, Rotation); }
+        private Vector2 bottomLeftRaw => new Vector2(Center.x - Width / 2f, Center.y - Height / 2f);
+        public Vector2 BottomLeft => Vector2.RotateVector(bottomLeftRaw, Center, Rotation);
 
-        private Vector2 bottomRightRaw { get => new Vector2(Center.x + Width / 2f, Center.y - Height / 2f); }
-        public Vector2 BottomRight { get => Vector2.RotateVector(bottomRightRaw, Center, Rotation); }
+        private Vector2 bottomRightRaw => new Vector2(Center.x + Width / 2f, Center.y - Height / 2f);
+        public Vector2 BottomRight => Vector2.RotateVector(bottomRightRaw, Center, Rotation);
 
         public Rectangle()
         {

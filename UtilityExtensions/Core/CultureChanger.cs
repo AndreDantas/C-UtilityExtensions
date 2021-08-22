@@ -25,9 +25,8 @@ namespace UtilityExtensions.Core
         /// name="newCulture" />
         /// </summary>
         /// <exception cref="ArgumentNullException"> </exception>
-        public CultureChanger(CultureInfo newCulture)
+        public CultureChanger(CultureInfo newCulture) : base()
         {
-            OldCulture = Thread.CurrentThread.CurrentCulture.Clone() as CultureInfo;
             ChangeCulture(newCulture);
         }
 
@@ -38,16 +37,14 @@ namespace UtilityExtensions.Core
         /// <exception cref="ArgumentNullException"> </exception>
         public void ChangeCulture(CultureInfo newCulture)
         {
-            if (newCulture == null)
-                throw new ArgumentNullException(nameof(newCulture));
-
-            CurrentCulture = newCulture;
+            CurrentCulture = newCulture ?? throw new ArgumentNullException(nameof(newCulture));
             Thread.CurrentThread.CurrentCulture = newCulture;
         }
 
         public void Dispose()
         {
             Thread.CurrentThread.CurrentCulture = OldCulture;
+            GC.SuppressFinalize(this);
         }
     }
 }

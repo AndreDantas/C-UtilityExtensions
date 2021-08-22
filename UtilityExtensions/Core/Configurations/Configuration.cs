@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Data;
 using System.Collections.Generic;
-using System.Text;
+using System.Data;
 using System.Reflection;
 using UtilityExtensions.Core.Configurations.Attributes;
 
@@ -44,11 +43,13 @@ namespace UtilityExtensions.Core.Configurations
                 dt.Columns.Add("Value");
 
                 if (values == null)
-                    return dt;
-
-                foreach (var key in values.Keys)
                 {
-                    var dr = dt.NewRow();
+                    return dt;
+                }
+
+                foreach (string key in values.Keys)
+                {
+                    DataRow dr = dt.NewRow();
                     dr["Key"] = key;
                     dr["DisplayName"] = string.IsNullOrEmpty(values[key].displayName) ? key : values[key].displayName;
                     dr["Type"] = values[key].type;
@@ -64,17 +65,19 @@ namespace UtilityExtensions.Core.Configurations
 
         public virtual Data ToData()
         {
-            var configData = new Data(Name);
+            Data configData = new Data(Name);
 
             foreach (PropertyInfo prop in GetType().GetProperties())
             {
                 if (!prop.CanWrite || !prop.CanRead)
+                {
                     continue;
+                }
 
                 object[] attributes = prop.GetCustomAttributes(typeof(ConfigPropertyAttribute), true);
                 if (attributes.Length == 1)
                 {
-                    var attr = (ConfigPropertyAttribute)attributes[0];
+                    ConfigPropertyAttribute attr = (ConfigPropertyAttribute)attributes[0];
                     string displayName = string.IsNullOrEmpty(attr.displayName) ? prop.Name : attr.displayName;
                     configData.values[prop.Name] = new Data.ValueInfo(displayName, attr.ConvertToString(prop.GetValue(this, null)), attr.type);
                 }
@@ -88,17 +91,23 @@ namespace UtilityExtensions.Core.Configurations
             foreach (PropertyInfo prop in GetType().GetProperties())
             {
                 if (!prop.CanWrite || !prop.CanRead)
+                {
                     continue;
+                }
 
                 object[] attributes = prop.GetCustomAttributes(typeof(ConfigPropertyAttribute), true);
                 if (attributes.Length == 1)
                 {
-                    var attr = (ConfigPropertyAttribute)attributes[0];
+                    ConfigPropertyAttribute attr = (ConfigPropertyAttribute)attributes[0];
 
                     if (data.values?.ContainsKey(prop.Name) ?? false)
+                    {
                         prop.SetValue(this, attr.ConvertFromString(data.values[prop.Name].value));
+                    }
                     else
+                    {
                         prop.SetValue(this, attr.ConvertFromString(attr.@default));
+                    }
                 }
             }
         }
@@ -106,10 +115,14 @@ namespace UtilityExtensions.Core.Configurations
         protected static string GetValue(string key, Data config, string @default = "")
         {
             if (string.IsNullOrEmpty(key) || config.values == null)
+            {
                 return @default;
+            }
 
             if (config.values.ContainsKey(key) && !string.IsNullOrEmpty(config.values[key].value))
+            {
                 return config.values[key].value;
+            }
 
             return @default;
         }

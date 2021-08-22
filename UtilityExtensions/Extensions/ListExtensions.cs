@@ -17,7 +17,9 @@ namespace UtilityExtensions.Extensions
         public static int RemoveWhere<T>(this List<T> l, Predicate<T> condition)
         {
             if (l == null || condition == null)
+            {
                 return 0;
+            }
 
             int count = 0;
 
@@ -42,7 +44,9 @@ namespace UtilityExtensions.Extensions
         public static int RemoveNull<T>(this List<T> l)
         {
             if (l == null || l.Count == 0)
+            {
                 return 0;
+            }
 
             int count = 0;
 
@@ -58,18 +62,22 @@ namespace UtilityExtensions.Extensions
             return count;
         }
 
-        public static T Search<T>(this List<T> l, Func<T, bool> searchFunction)
+        public static T Search<T>(this List<T> l, Func<T, bool> searchFunction, T @default = default)
         {
             if (l == null || l.Count == 0)
-                return default;
+            {
+                return @default;
+            }
 
             for (int i = 0; i < l.Count; i++)
             {
                 if (searchFunction(l[i]))
+                {
                     return l[i];
+                }
             }
 
-            return default;
+            return @default;
         }
 
         /// <summary>
@@ -86,9 +94,11 @@ namespace UtilityExtensions.Extensions
         public static List<T2> Map<T1, T2>(this List<T1> oldList, Func<T1, T2> map)
         {
             if (oldList == null || map == null)
+            {
                 return null;
+            }
 
-            List<T2> newList = new List<T2>();
+            List<T2> newList = new();
 
             for (int i = 0; i < oldList.Count; i++)
             {
@@ -100,9 +110,14 @@ namespace UtilityExtensions.Extensions
         public static void TryAddRange<T>(this List<T> l, List<T> other)
         {
             if (l == null)
+            {
                 return;
+            }
+
             if (other != null)
+            {
                 l.AddRange(other);
+            }
         }
 
         /// <summary>
@@ -131,16 +146,22 @@ namespace UtilityExtensions.Extensions
         private static bool CheckListsItems(this IEnumerable list1, IEnumerable list2, Func<int, bool> evalFunction, IEqualityComparer<object> comparer = null)
         {
             if (evalFunction == null)
+            {
                 return false;
+            }
 
             if (list1 is ICollection ilist1 && list2 is ICollection ilist2 && (ilist1.Count == 0 || ilist2.Count == 0 || ilist2.Count > ilist1.Count))
+            {
                 return false;
+            }
 
             if (comparer == null)
+            {
                 comparer = EqualityComparer<object>.Default;
+            }
 
-            var itemCounts = new Dictionary<object, int>(comparer);
-            foreach (var s in list1)
+            Dictionary<object, int> itemCounts = new Dictionary<object, int>(comparer);
+            foreach (object s in list1)
             {
                 if (itemCounts.ContainsKey(s))
                 {
@@ -151,7 +172,7 @@ namespace UtilityExtensions.Extensions
                     itemCounts.Add(s, 1);
                 }
             }
-            foreach (var s in list2)
+            foreach (object s in list2)
             {
                 if (itemCounts.ContainsKey(s))
                 {
@@ -192,6 +213,33 @@ namespace UtilityExtensions.Extensions
             return CheckListsItems(list1, list2, (c) => c == 0, comparer);
         }
 
+        public static IEnumerable ForEach(this IEnumerable list, Func<object, object> func)
+        {
+            List<object> temp = new();
+            foreach (object item in list)
+            {
+                temp.Add(func(item));
+            }
+            return temp;
+        }
+
+        public static Type GetListType(this object someList)
+        {
+            if (someList == null)
+            {
+                throw new ArgumentNullException(nameof(someList));
+            }
+
+            Type type = someList.GetType();
+
+            if (!type.IsGenericType || type.GetGenericTypeDefinition() != typeof(List<>))
+            {
+                return null;
+            }
+
+            return type.GetGenericArguments()[0];
+        }
+
         #region String
 
         /// <summary>
@@ -202,7 +250,9 @@ namespace UtilityExtensions.Extensions
         public static void AddIfNotEmpty(this List<string> l, string s)
         {
             if (!string.IsNullOrEmpty(s))
+            {
                 l.Add(s);
+            }
         }
 
         #endregion String

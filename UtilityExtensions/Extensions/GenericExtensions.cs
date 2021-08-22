@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
+using System.ComponentModel;
 
 namespace UtilityExtensions.Extensions
 {
@@ -14,15 +14,21 @@ namespace UtilityExtensions.Extensions
         public static bool In<T>(this T obj, Func<T, T, bool> comparer, params T[] collection)
         {
             if (collection == null)
+            {
                 return false;
+            }
 
             if (comparer == null)
+            {
                 comparer = EqualityComparer<T>.Default.Equals;
+            }
 
             for (int i = 0; i < collection.Length; i++)
             {
                 if (comparer(obj, collection[i]))
+                {
                     return true;
+                }
             }
             return false;
         }
@@ -51,6 +57,11 @@ namespace UtilityExtensions.Extensions
             }
 
             return System.Convert.ChangeType(source, destinationType);
+        }
+
+        public static string GetDescription(this Enum enumValue)
+        {
+            return ((DescriptionAttribute)Attribute.GetCustomAttribute((enumValue.GetType().GetField(enumValue.ToString())), typeof(DescriptionAttribute))).Description;
         }
     }
 }

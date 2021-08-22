@@ -8,11 +8,34 @@ namespace UtilityExtensions.Core
 {
     public static class Log
     {
-        /// <summary>
-        /// String representation of the current time in 'yyyy-MM-dd HH:mm:ss' format
-        /// </summary>
-        public static string Time => DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+        public interface IExceptionMessageHandler
+        {
+            string GetMessage(Exception exception);
 
+            Type GetExceptionType();
+        }
+
+        public class ExceptionMessageHandler<T> : IExceptionMessageHandler where T : Exception
+        {
+            private readonly Func<T, string> getMessage;
+
+            public ExceptionMessageHandler(Func<T, string> getMessage)
+            {
+                this.getMessage = getMessage;
+            }
+
+            public string GetMessage(Exception exception)
+            {
+                return getMessage((T)exception);
+            }
+
+            public Type GetExceptionType()
+            {
+                return typeof(T);
+            }
+        }
+
+        [Flags]
         public enum ExceptionFlags
         {
             /// <summary>
@@ -46,19 +69,27 @@ namespace UtilityExtensions.Core
             All = FileName | ExceptionType | MethodName | Line
         }
 
-        public static string Exception(Exception e,
+        /// <summary>
+        /// String representation of the current time in 'yyyy-MM-dd HH:mm:ss' format
+        /// </summary>
+        public static string Time => DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
+        public static string Exception(Exception exception,
                                        ExceptionFlags flags = ExceptionFlags.All,
+                                       List<IExceptionMessageHandler> exceptionMessageHandlers = null,
                                        [CallerFilePath] string path = "")
         {
-            if (e == null)
+            if (exception == null)
+            {
                 return "";
+            }
 
-            StackTrace st = new StackTrace(e, true);
+            StackTrace st = new(exception, true);
 
             //Get the first stack frame
             StackFrame frame = st.GetFrame(st.FrameCount - 1);
 
-            var namesList = new List<string>();
+            List<string> namesList = new();
 
             if (flags.HasFlag(ExceptionFlags.FileName))
             {
@@ -66,33 +97,53 @@ namespace UtilityExtensions.Core
                 string fileName = Path.GetFileName(path);
 
                 if (!string.IsNullOrEmpty(fileName))
+                {
                     namesList.Add(fileName);
+                }
             }
 
             if (flags.HasFlag(ExceptionFlags.MethodName))
             {
                 //Get the method
-                var methodInfo = frame.GetMethod();
+                System.Reflection.MethodBase methodInfo = frame.GetMethod();
 
                 string methodName = methodInfo.DeclaringType.FullName + "." + methodInfo.Name;
 
                 if (!string.IsNullOrEmpty(methodName))
+                {
                     namesList.Add(methodName);
+                }
             }
 
             if (flags.HasFlag(ExceptionFlags.ExceptionType))
             {
                 //Get the exception type
-                string exceptionType = e.GetType().ToString();
+                string exceptionType = exception.GetType().ToString();
 
                 if (!string.IsNullOrEmpty(exceptionType))
+                {
                     namesList.Add(exceptionType);
+                }
             }
 
-            var concatString = "";
+            string concatString = "";
             if (namesList.Count > 0)
             {
                 concatString = string.Join(" - ", namesList) + ": ";
+            }
+
+            string exceptionMessage = exception.Message;
+
+            if (exceptionMessageHandlers != null)
+            {
+                foreach (IExceptionMessageHandler handler in exceptionMessageHandlers)
+                {
+                    if (handler?.GetExceptionType() == exception.GetType())
+                    {
+                        exceptionMessage = handler?.GetMessage(exception) ?? exceptionMessage;
+                        break;
+                    }
+                }
             }
 
             string lineNumber = "";
@@ -104,7 +155,7 @@ namespace UtilityExtensions.Core
                 lineNumber = $" at line {line}";
             }
 
-            return $"{concatString}'{e.Message}'{lineNumber}";
+            return $"{concatString}'{exceptionMessage}'{lineNumber}";
         }
     }
 }

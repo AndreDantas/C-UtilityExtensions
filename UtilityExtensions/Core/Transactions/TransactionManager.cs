@@ -27,9 +27,9 @@ namespace UtilityExtensions.Core.Transactions
             public bool rollbackOnError;
             public Action<TransactionException> onExecuteError;
             public Action<TransactionException> onRollbackError;
-        }
 
-        public static readonly Settings DEFAULT = new Settings { throwExceptionOnError = true, rollbackOnError = true };
+            public static readonly Settings DEFAULT = new Settings { throwExceptionOnError = true, rollbackOnError = true };
+        }
 
         private List<TransactionHandler> transactions = new List<TransactionHandler>();
         public IReadOnlyCollection<TransactionHandler> Transactions => transactions.AsReadOnly();
@@ -58,7 +58,7 @@ namespace UtilityExtensions.Core.Transactions
         /// <returns> </returns>
         public static TransactionManager Add(Transaction transaction, Action<Transaction> onExecuteTransaction = null, Action<Transaction> onRollbackTransaction = null)
         {
-            TransactionManager m = new TransactionManager { settings = DEFAULT };
+            TransactionManager m = new TransactionManager { settings = Settings.DEFAULT };
             m.AddTransaction(transaction, onExecuteTransaction, onRollbackTransaction);
             return m;
         }
@@ -81,26 +81,30 @@ namespace UtilityExtensions.Core.Transactions
         {
             for (int i = 0; i < transactions.Count; i++)
             {
-                var handler = transactions[i];
+                TransactionHandler handler = transactions[i];
                 if (handler.transaction != null)
                 {
                     try
                     {
                         //Try to execute the transaction.
                         if (handler.transaction.Execute())
+                        {
                             try
                             {
                                 handler.onExecute?.Invoke(handler.transaction);
                             }
                             catch { }
+                        }
                     }
                     catch (Exception e)
                     {
                         //If a transaction failed, rollback all previous transactions.
                         if (settings.rollbackOnError)
+                        {
                             Rollback();
+                        }
 
-                        var transactionException = GetTransactionException(handler, e);
+                        TransactionException transactionException = GetTransactionException(handler, e);
 
                         try
                         {
@@ -109,7 +113,9 @@ namespace UtilityExtensions.Core.Transactions
                         catch { }
 
                         if (settings.throwExceptionOnError)
+                        {
                             throw transactionException;
+                        }
                     }
                 }
             }
@@ -122,22 +128,24 @@ namespace UtilityExtensions.Core.Transactions
         {
             for (int i = transactions.Count - 1; i >= 0; i--)
             {
-                var handler = transactions[i];
+                TransactionHandler handler = transactions[i];
                 if (handler.transaction != null)
                 {
                     try
                     {
                         //Try to rollback the transaction.
                         if (handler.transaction.Rollback())
+                        {
                             try
                             {
                                 handler.onRollback?.Invoke(handler.transaction);
                             }
                             catch { }
+                        }
                     }
                     catch (Exception e)
                     {
-                        var transactionException = GetTransactionException(handler, e);
+                        TransactionException transactionException = GetTransactionException(handler, e);
 
                         try
                         {
@@ -146,7 +154,9 @@ namespace UtilityExtensions.Core.Transactions
                         catch { }
 
                         if (settings.throwExceptionOnError)
+                        {
                             throw transactionException;
+                        }
                     }
                 }
             }
@@ -164,7 +174,9 @@ namespace UtilityExtensions.Core.Transactions
         private TransactionException GetTransactionException(TransactionHandler handler, Exception exception)
         {
             if (handler == null)
+            {
                 throw new ArgumentNullException(nameof(handler));
+            }
 
             string state = handler.transaction?.state == Transaction.State.Pending ? "execute" : "rollback";
             return new TransactionException($"Transaction {handler.Order} ({handler.transaction.GetType()}) failed to {state}, with error: {exception?.Message}", handler.transaction, exception);

@@ -12,7 +12,10 @@ namespace UtilityExtensions.Core.Geometry
         /// </summary>
         /// <param name="by"> </param>
         /// <returns> </returns>
-        public Vector2 GetPoint(Float01 by) => GeometryExtensions.Lerp(start, end, by);
+        public Vector2 GetPoint(Float01 by)
+        {
+            return GeometryExtensions.Lerp(start, end, by);
+        }
 
         public Line(Vector2 start, Vector2 end) : this()
         {
@@ -23,7 +26,9 @@ namespace UtilityExtensions.Core.Geometry
         public static Line[] FormLinesWithPoints(Vector2[] points)
         {
             if (points == null || points.Length < 2)
+            {
                 return null;
+            }
 
             Line[] lines = new Line[points.Length - 1];
 

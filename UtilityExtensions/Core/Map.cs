@@ -1,40 +1,55 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Globalization;
 using System.Text;
 using UtilityExtensions.Extensions;
 
 namespace UtilityExtensions.Core
 {
-    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
+    //TODO: Handle list of complex objects
+
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
     public class MapIgnore : Attribute
     {
     }
 
-    public sealed class Map : Dictionary<string, object>
+    /// <summary>
+    /// Class that represents the json structure.
+    /// </summary>
+    public sealed class Map : Dictionary<string, object>, ICloneable
     {
         public override bool Equals(object obj)
         {
             if (obj == null)
+            {
                 return false;
+            }
 
             if (obj is Map otherMap)
             {
                 if (this.Keys.Count != otherMap.Keys.Count)
+                {
                     return false;
+                }
 
-                foreach (var item in this)
+                foreach (KeyValuePair<string, object> item in this)
                 {
                     if (!otherMap.ContainsKey(item.Key))
+                    {
                         return false;
+                    }
 
                     if (!CompareObjects(item.Value, otherMap[item.Key]))
+                    {
                         return false;
+                    }
                 }
             }
-            else return false;
+            else
+            {
+                return false;
+            }
 
             return true;
         }
@@ -59,12 +74,12 @@ namespace UtilityExtensions.Core
 
         public override string ToString()
         {
-            StringBuilder sr = new StringBuilder();
-            sr.Append("{");
+            StringBuilder sr = new();
+            sr.Append('{');
             int keyCount = Keys.Count;
-            using (var cc = new CultureChanger(CultureInfo.InvariantCulture))
+            using (CultureChanger cc = new(CultureInfo.InvariantCulture))
             {
-                foreach (var item in this)
+                foreach (KeyValuePair<string, object> item in this)
                 {
                     keyCount--;
 
@@ -72,10 +87,12 @@ namespace UtilityExtensions.Core
                     sr.Append(ConvertObjectToString(item.Value));
 
                     if (keyCount > 0)
-                        sr.Append(",");
+                    {
+                        sr.Append(',');
+                    }
                 }
             }
-            sr.Append("}");
+            sr.Append('}');
             return sr.ToString();
         }
 
@@ -95,15 +112,23 @@ namespace UtilityExtensions.Core
         private static bool CompareObjects(object a, object b)
         {
             if (a == null && b == null)
+            {
                 return true;
+            }
 
             if (a?.GetType() != b?.GetType())
+            {
                 return false;
+            }
 
             if (a.GetType().IsIEnumerable() && a is Map == false)
+            {
                 return CompareIEnumerable(a as IEnumerable, b as IEnumerable);
+            }
             else
+            {
                 return a.Equals(b);
+            }
         }
 
         private static bool CompareIEnumerable(IEnumerable a, IEnumerable b)
@@ -113,16 +138,24 @@ namespace UtilityExtensions.Core
 
         private static string ConvertObjectToString(object obj)
         {
-            StringBuilder sr = new StringBuilder();
+            StringBuilder sr = new();
 
             if (obj == null)
+            {
                 sr.Append("null");
+            }
             else if (obj is string)
+            {
                 sr.Append($"\"{obj}\"");
+            }
             else if (obj.GetType().IsIEnumerable() && obj is Map == false)
+            {
                 sr.Append(ConvertIEnumerableToString(obj as IEnumerable));
+            }
             else
+            {
                 sr.Append(obj.ToString());
+            }
 
             return sr.ToString();
         }
@@ -130,70 +163,127 @@ namespace UtilityExtensions.Core
         private static string ConvertIEnumerableToString(IEnumerable obj)
         {
             if (obj == null)
+            {
                 return "null";
+            }
 
-            StringBuilder sr = new StringBuilder();
-            sr.Append("[");
+            StringBuilder sr = new();
+            sr.Append('[');
 
-            foreach (var item in obj)
+            foreach (object item in obj)
             {
                 sr.Append(ConvertObjectToString(item));
-                sr.Append(",");
+                sr.Append(',');
             };
             if (sr.Length > 1)
+            {
                 sr.Length--;
-            sr.Append("]");
+            }
+
+            sr.Append(']');
 
             return sr.ToString();
+        }
+
+        public object Clone()
+        {
+            Map clone = new();
+
+            foreach (string key in Keys)
+            {
+                clone[key] = this[key] switch
+                {
+                    ICloneable cloneable => cloneable.Clone(),
+                    _ => this[key],
+                };
+            }
+
+            return clone;
         }
     }
 
     public static class MapExtensions
     {
+        /// <summary>
+        /// Converts this object to a <seealso cref="Map" />.
+        /// </summary>
+        /// <remarks>
+        /// Properties with the <seealso cref="MapIgnore" /> attribute or of type <seealso
+        /// cref="Map" />, will be ignored.
+        /// </remarks>
+        /// <param name="obj"> </param>
+        /// <returns> </returns>
         public static Map ToMap(this object obj)
         {
             if (obj == null)
-                return null;
-
-            var props = obj.GetType().GetProperties();
-
-            Map map = new Map();
-
-            foreach (var prop in props)
             {
-                var attrs = prop.GetCustomAttributes(typeof(MapIgnore), true);
-                if (attrs.Length == 1)
+                return null;
+            }
+
+            System.Reflection.PropertyInfo[] props = obj.GetType().GetProperties();
+
+            Map map = new();
+
+            foreach (System.Reflection.PropertyInfo prop in props)
+            {
+                if (prop.PropertyType == typeof(Map))
+                {
                     continue;
+                }
+
+                object[] attrs = prop.GetCustomAttributes(typeof(MapIgnore), true);
+                if (attrs.Length == 1)
+                {
+                    continue;
+                }
 
                 if (prop.PropertyType.IsSimpleType() || prop.PropertyType.IsIEnumerable())
+                {
                     map[prop.Name] = prop.GetValue(obj);
+                }
                 else
+                {
                     map[prop.Name] = prop.GetValue(obj).ToMap();
+                }
             }
 
             return map;
         }
 
+        /// <summary>
+        /// Uses this <seealso cref="Map" /> to create a new instance of <typeparamref name="T" />.
+        /// </summary>
+        /// <remarks>
+        /// Properties with the <seealso cref="MapIgnore" /> attribute or of type <seealso
+        /// cref="Map" />, will be ignored.
+        /// </remarks>
+        /// <typeparam name="T"> </typeparam>
+        /// <param name="map"> </param>
+        /// <returns> </returns>
         public static T FromMap<T>(this Map map) where T : class, new()
         {
-            var obj = new T();
-            var objType = obj.GetType();
+            T obj = new();
+            Type objType = obj.GetType();
 
-            foreach (var item in map)
+            foreach (KeyValuePair<string, object> item in map)
             {
-                var prop = objType.GetProperty(item.Key);
+                System.Reflection.PropertyInfo prop = objType.GetProperty(item.Key);
 
-                if (prop == null)
+                if (prop == null || prop.PropertyType == typeof(Map))
+                {
                     continue;
+                }
 
-                var attrs = prop.GetCustomAttributes(typeof(MapIgnore), true);
+                object[] attrs = prop.GetCustomAttributes(typeof(MapIgnore), true);
                 if (attrs.Length == 1)
+                {
                     continue;
+                }
 
                 if (item.Value is Map)
                 {
-                    var mi = typeof(MapExtensions).GetMethod("FromMap");
-                    var miRef = mi.MakeGenericMethod(prop.PropertyType);
+                    System.Reflection.MethodInfo mi = typeof(MapExtensions).GetMethod("FromMap");
+                    System.Reflection.MethodInfo miRef = mi.MakeGenericMethod(prop.PropertyType);
                     prop.SetValue(obj, miRef.Invoke(null, new object[1] { item.Value }), null);
                 }
                 else

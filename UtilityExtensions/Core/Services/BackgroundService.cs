@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace UtilityExtensions.Core.Services
 {
@@ -12,7 +10,9 @@ namespace UtilityExtensions.Core.Services
         protected BackgroundService(TimeSpan interval)
         {
             if (interval.TotalSeconds < 0)
+            {
                 throw new ArgumentException("The interval can't be negative", nameof(interval));
+            }
 
             this.interval = interval;
         }

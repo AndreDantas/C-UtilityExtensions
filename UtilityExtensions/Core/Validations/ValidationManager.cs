@@ -22,6 +22,11 @@ namespace UtilityExtensions.Core.Validations
             private Dictionary<int, Result> results = new Dictionary<int, Result>();
             public IReadOnlyCollection<Result> Results => results.Values.ToList().AsReadOnly();
 
+            public void ClearResults()
+            {
+                results.Clear();
+            }
+
             public Parameter(T value, string name)
             {
                 this.value = value;
@@ -38,6 +43,7 @@ namespace UtilityExtensions.Core.Validations
         {
             public enum State
             {
+                Pending,
                 Success,
                 Failed,
                 Exception
@@ -85,7 +91,7 @@ namespace UtilityExtensions.Core.Validations
         /// <returns> </returns>
         public static ValidationManager<T> Add(T value, string paramName = "")
         {
-            var v = new ValidationManager<T>(new Settings { throwExceptionOnFail = true, validateImmediately = true });
+            ValidationManager<T> v = new ValidationManager<T>(new Settings { throwExceptionOnFail = true, validateImmediately = true });
 
             v.AddParameter(value, paramName);
 
@@ -101,13 +107,13 @@ namespace UtilityExtensions.Core.Validations
         /// Returns a list with the parameters that failed any validations
         /// </summary>
         /// <returns> </returns>
-        public List<Parameter> FailedParameters()
+        public IReadOnlyCollection<Parameter> FailedParameters()
         {
-            var failedParameters = new List<Parameter>();
+            List<Parameter> failedParameters = new List<Parameter>();
 
-            foreach (var param in parameters)
+            foreach (Parameter param in parameters)
             {
-                foreach (var result in param.Results)
+                foreach (Result result in param.Results)
                 {
                     if (!result.IsSuccess)
                     {
@@ -117,7 +123,7 @@ namespace UtilityExtensions.Core.Validations
                 }
             }
 
-            return failedParameters;
+            return failedParameters.AsReadOnly();
         }
 
         /// <summary>
@@ -129,14 +135,18 @@ namespace UtilityExtensions.Core.Validations
         public void AddValidation(Func<T, bool> validationFunc, string validationError, string validationName = "")
         {
             if (validationFunc == null)
+            {
                 throw new ArgumentNullException(nameof(validationFunc));
+            }
 
-            var validation = new Validation<T>(validations.Count, validationFunc, validationError, validationName);
+            Validation<T> validation = new Validation<T>(validations.Count, validationFunc, validationError, validationName);
 
             validations.Add(validation);
 
             if (settings.validateImmediately)
+            {
                 ExecuteValidation(validation);
+            }
         }
 
         private void ExecuteValidation(Validation<T> validation)
@@ -157,7 +167,9 @@ namespace UtilityExtensions.Core.Validations
                 }
 
                 if (!result.IsSuccess && settings.throwExceptionOnFail)
+                {
                     ThrowValidationException(result);
+                }
 
                 param.AddResult(validation.Order, result);
             }
@@ -168,7 +180,8 @@ namespace UtilityExtensions.Core.Validations
         /// <exception cref="ValidationException"> </exception>
         public void Validate()
         {
-            foreach (var method in validations)
+            ClearResults();
+            foreach (Validation<T> method in validations)
             {
                 ExecuteValidation(method);
             }
@@ -190,6 +203,15 @@ namespace UtilityExtensions.Core.Validations
             validations.Clear();
         }
 
+        private void ClearResults()
+        {
+            if (parameters != null)
+                foreach (var param in parameters)
+                {
+                    param.ClearResults();
+                }
+        }
+
         /// <summary>
         /// Throws a ValidationException
         /// </summary>
@@ -197,7 +219,7 @@ namespace UtilityExtensions.Core.Validations
         /// <param name="result"> </param>
         private void ThrowValidationException(Result result)
         {
-            throw new ValidationException($"Parameter {result.paramName} failed validation: {result.validation.onFailError}", result.paramName, result.validation.onFailError, result.exception);
+            throw new ValidationException($"Parameter {result.paramName} failed validation '{result.validation.name ?? "Unnamed"}': {result.validation.onFailError}", result.paramName, result.validation.name, result.validation.onFailError, result.exception);
         }
     }
 }

@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Data;
-using System.Collections.Generic;
-using System.Text;
 using UtilityExtensions.Extensions;
 
 namespace UtilityExtensions.Core.Configurations.Attributes
@@ -17,8 +14,14 @@ namespace UtilityExtensions.Core.Configurations.Attributes
 
         public override Type type => typeof(DateTime);
 
-        public override object ConvertFromString(string s) => DateTime.TryParse(s, out DateTime result) ? result : DateTime.TryParse(@default, out result) ? result : new DateTime();
+        public override object ConvertFromString(string s)
+        {
+            return DateTime.TryParse(s, out DateTime result) ? result : DateTime.TryParse(@default, out result) ? result : new DateTime();
+        }
 
-        public override string ConvertToString(object o) => o is DateTime value ? value.TryToString(format) : @default;
+        public override string ConvertToString(object o)
+        {
+            return o is DateTime value ? value.TryToString(format) : @default;
+        }
     }
 }

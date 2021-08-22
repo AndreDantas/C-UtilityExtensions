@@ -1,5 +1,3 @@
-using UtilityExtensions.Core.Geometry;
-
 namespace UtilityExtensions.Core.Geometry.Interfaces
 {
     public interface IShapesCollision<T1, T2> where T1 : Shape2D where T2 : Shape2D

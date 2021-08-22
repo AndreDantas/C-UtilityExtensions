@@ -22,7 +22,10 @@ namespace UtilityExtensions.Core
             set
             {
                 if (!comparer.Equals(this.value, value))
+                {
                     this.Dirty = true;
+                }
+
                 this.value = value;
             }
         }
@@ -34,9 +37,15 @@ namespace UtilityExtensions.Core
             private set => dirty = value;
         }
 
-        public static implicit operator Param<T>(T d) => new Param<T>(d);
+        public static implicit operator Param<T>(T d)
+        {
+            return new Param<T>(d);
+        }
 
-        public static implicit operator T(Param<T> d) => d.value;
+        public static implicit operator T(Param<T> d)
+        {
+            return d.value;
+        }
 
         public override string ToString()
         {

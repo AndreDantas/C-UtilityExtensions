@@ -8,9 +8,13 @@ namespace UtilityExtensions.Extensions
         public static int SignZero(this double d)
         {
             if (d.CloseTo(0f))
+            {
                 return 0;
+            }
             else
+            {
                 return d > 0 ? 1 : -1;
+            }
         }
 
         public static double Clamp(this double value, double minValue, double maxValue)
@@ -21,14 +25,20 @@ namespace UtilityExtensions.Extensions
         public static double ClampMax(this double value, double maxValue)
         {
             if (value > maxValue)
+            {
                 value = maxValue;
+            }
+
             return value;
         }
 
         public static double ClampMin(this double value, double minValue)
         {
             if (value < minValue)
+            {
                 value = minValue;
+            }
+
             return value;
         }
 
@@ -40,28 +50,40 @@ namespace UtilityExtensions.Extensions
         public static float ClampMax(this float value, float maxValue)
         {
             if (value > maxValue)
+            {
                 value = maxValue;
+            }
+
             return value;
         }
 
         public static float ClampMin(this float value, float minValue)
         {
             if (value < minValue)
+            {
                 value = minValue;
+            }
+
             return value;
         }
 
         public static Numeric ClampMax(this Numeric value, Numeric maxValue)
         {
             if (value > maxValue)
+            {
                 value = maxValue;
+            }
+
             return value;
         }
 
         public static Numeric ClampMin(this Numeric value, Numeric minValue)
         {
             if (value < minValue)
+            {
                 value = minValue;
+            }
+
             return value;
         }
 
@@ -73,14 +95,20 @@ namespace UtilityExtensions.Extensions
         public static int ClampMax(this int value, int maxValue)
         {
             if (value > maxValue)
+            {
                 value = maxValue;
+            }
+
             return value;
         }
 
         public static int ClampMin(this int value, int minValue)
         {
             if (value < minValue)
+            {
                 value = minValue;
+            }
+
             return value;
         }
 
@@ -139,9 +167,14 @@ namespace UtilityExtensions.Extensions
         {
             RoundingFunction roundingFunction;
             if (roundingDirection == RoundingDirection.Up)
+            {
                 roundingFunction = Math.Ceiling;
+            }
             else
+            {
                 roundingFunction = Math.Floor;
+            }
+
             value *= Math.Pow(10, precision);
             value = roundingFunction(value);
             return value * Math.Pow(10, -1 * precision);
@@ -180,18 +213,27 @@ namespace UtilityExtensions.Extensions
         public static double ChangeTo(this double d, double target, double deltaTime, double speed = 1f)
         {
             if (d.CloseTo(target))
+            {
                 return target;
+            }
+
             double changeValue = speed.Abs().ClampMin(target) * deltaTime;
             if (d > target)
             {
                 if (d - changeValue < target)
+                {
                     return target;
+                }
+
                 return d - changeValue;
             }
             else
             {
                 if (d + changeValue > target)
+                {
                     return target;
+                }
+
                 return d + changeValue;
             }
         }
@@ -204,18 +246,27 @@ namespace UtilityExtensions.Extensions
         public static float ChangeTo(this float d, float target, float deltaTime, float speed = 1f)
         {
             if (d.CloseTo(target))
+            {
                 return target;
+            }
+
             float changeValue = speed.Abs().ClampMin(target) * deltaTime;
             if (d > target)
             {
                 if (d - changeValue < target)
+                {
                     return target;
+                }
+
                 return d - changeValue;
             }
             else
             {
                 if (d + changeValue > target)
+                {
                     return target;
+                }
+
                 return d + changeValue;
             }
         }
@@ -228,18 +279,27 @@ namespace UtilityExtensions.Extensions
         public static Numeric ChangeTo(this Numeric d, Numeric target, Numeric deltaTime, Numeric? speed = null)
         {
             if (d.CloseTo(target))
+            {
                 return target;
+            }
+
             Numeric changeValue = (speed ?? 1f).Abs().ClampMin(target) * deltaTime;
             if (d > target)
             {
                 if (d - changeValue < target)
+                {
                     return target;
+                }
+
                 return d - changeValue;
             }
             else
             {
                 if (d + changeValue > target)
+                {
                     return target;
+                }
+
                 return d + changeValue;
             }
         }

@@ -1,21 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace UtilityExtensions.Core.Services
 {
     public abstract class ServiceManager<T> where T : IService
     {
-        public struct Settings
+        public struct ServiceSettings
         {
             public Action<T> OnBeforeExecute;
             public Action<T> OnAfterExecute;
             public Action<T, Exception> OnError;
         }
 
-        protected Settings settings;
-
-        protected List<T> services = new List<T>();
+        protected List<T> services = new();
         public IReadOnlyCollection<T> Services => services.AsReadOnly();
 
         /// <summary>
@@ -24,10 +21,12 @@ namespace UtilityExtensions.Core.Services
         /// <inheritdoc />
         /// <exception cref="ArgumentNullException"> </exception>
         /// <param name="service"> </param>
-        public virtual void AddService(T service)
+        public virtual void AddService(T service, ServiceSettings settings = default)
         {
             if (service == null)
-                throw new ArgumentNullException("service");
+            {
+                throw new ArgumentNullException(nameof(service));
+            }
 
             services.Add(service);
         }

@@ -61,20 +61,68 @@ namespace UtilityExtensions.Core.Geometry
 
         public static implicit operator Vector2(Position p)
         {
-            return new Vector2(p.x, p.y);
+            return new Vector2(p.X, p.Y);
         }
 
-        public static Vector2 operator +(Vector2 v1, Vector2 v2) => new Vector2(v1.x + v2.x, v1.y + v2.y);
+        public static Vector2 operator +(Vector2 v1, Vector2 v2)
+        {
+            return new Vector2(v1.x + v2.x, v1.y + v2.y);
+        }
 
-        public static Vector2 operator -(Vector2 v1, Vector2 v2) => new Vector2(v1.x - v2.x, v1.y - v2.y);
+        public static Vector2 operator -(Vector2 v1, Vector2 v2)
+        {
+            return new Vector2(v1.x - v2.x, v1.y - v2.y);
+        }
 
-        public static Vector2 operator *(Vector2 v1, Vector2 v2) => new Vector2(v1.x * v2.x, v1.y * v2.y);
+        public static Vector2 operator *(Vector2 v1, Vector2 v2)
+        {
+            return new Vector2(v1.x * v2.x, v1.y * v2.y);
+        }
 
-        public static Vector2 operator /(Vector2 v1, Vector2 v2) => new Vector2(v1.x / v2.x, v1.y / v2.y);
+        public static Vector2 operator /(Vector2 v1, Vector2 v2)
+        {
+            return new Vector2(v1.x / v2.x, v1.y / v2.y);
+        }
 
-        public static bool operator ==(Vector2 v1, Vector2 v2) => v1.Equals(v2);
+        public static Vector2 operator *(Vector2 v1, double n)
+        {
+            return new Vector2(v1.x * n, v1.y * n);
+        }
 
-        public static bool operator !=(Vector2 v1, Vector2 v2) => !(v1 == v2);
+        public static Vector2 operator /(Vector2 v1, double n)
+        {
+            return new Vector2(v1.x / n, v1.y / n);
+        }
+
+        public static Vector2 operator *(Vector2 v1, decimal n)
+        {
+            return new Vector2(v1.x * (double)n, v1.y * (double)n);
+        }
+
+        public static Vector2 operator /(Vector2 v1, decimal n)
+        {
+            return new Vector2(v1.x / (double)n, v1.y / (double)n);
+        }
+
+        public static Vector2 operator *(Vector2 v1, long n)
+        {
+            return new Vector2(v1.x * n, v1.y * n);
+        }
+
+        public static Vector2 operator /(Vector2 v1, long n)
+        {
+            return new Vector2(v1.x / n, v1.y / n);
+        }
+
+        public static bool operator ==(Vector2 v1, Vector2 v2)
+        {
+            return v1.Equals(v2);
+        }
+
+        public static bool operator !=(Vector2 v1, Vector2 v2)
+        {
+            return !(v1 == v2);
+        }
 
         public override string ToString()
         {

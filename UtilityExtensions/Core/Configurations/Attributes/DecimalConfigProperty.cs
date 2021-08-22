@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace UtilityExtensions.Core.Configurations.Attributes
 {
@@ -15,11 +11,17 @@ namespace UtilityExtensions.Core.Configurations.Attributes
 
         public override Type type => typeof(decimal);
 
-        public override object ConvertFromString(string s) => decimal.TryParse(s?.Replace(",", CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator),
-                                                                               NumberStyles.Any,
-                                                                               CultureInfo.InvariantCulture,
-                                                                               out decimal result) ? result : decimal.TryParse(@default, out result) ? result : 0;
+        public override object ConvertFromString(string s)
+        {
+            return decimal.TryParse(s?.Replace(",", CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator),
+                               NumberStyles.Any,
+                               CultureInfo.InvariantCulture,
+                               out decimal result) ? result : decimal.TryParse(@default, out result) ? result : 0;
+        }
 
-        public override string ConvertToString(object o) => o is decimal value ? value.ToString(CultureInfo.InvariantCulture) : @default;
+        public override string ConvertToString(object o)
+        {
+            return o is decimal value ? value.ToString(CultureInfo.InvariantCulture) : @default;
+        }
     }
 }

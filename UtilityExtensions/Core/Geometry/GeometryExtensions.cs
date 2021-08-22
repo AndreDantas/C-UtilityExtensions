@@ -33,41 +33,55 @@ namespace UtilityExtensions.Core.Geometry
         public static bool IsShapes2DIntersecting(Shape2D a, Shape2D b)
         {
             if (a?.Points == null || b?.Points == null)
-                return false;
-
-            foreach (var shape in new[] { a, b })
             {
-                var points = shape.Points;
+                return false;
+            }
+
+            foreach (Shape2D shape in new[] { a, b })
+            {
+                Vector2[] points = shape.Points;
                 for (int i1 = 0; i1 < points.Length; i1++)
                 {
                     int i2 = (i1 + 1) % points.Length;
-                    var p1 = points[i1];
-                    var p2 = points[i2];
+                    Vector2 p1 = points[i1];
+                    Vector2 p2 = points[i2];
 
-                    var normal = new Vector2(p2.y - p1.y, p1.x - p2.x);
+                    Vector2 normal = new Vector2(p2.y - p1.y, p1.x - p2.x);
 
                     double? minA = null, maxA = null;
-                    foreach (var p in a.Points)
+                    foreach (Vector2 p in a.Points)
                     {
-                        var projected = normal.x * p.x + normal.y * p.y;
+                        double projected = normal.x * p.x + normal.y * p.y;
                         if (minA == null || projected < minA)
+                        {
                             minA = projected;
+                        }
+
                         if (maxA == null || projected > maxA)
+                        {
                             maxA = projected;
+                        }
                     }
 
                     double? minB = null, maxB = null;
-                    foreach (var p in b.Points)
+                    foreach (Vector2 p in b.Points)
                     {
-                        var projected = normal.x * p.x + normal.y * p.y;
+                        double projected = normal.x * p.x + normal.y * p.y;
                         if (minB == null || projected < minB)
+                        {
                             minB = projected;
+                        }
+
                         if (maxB == null || projected > maxB)
+                        {
                             maxB = projected;
+                        }
                     }
 
                     if (maxA < minB || maxB < minA)
+                    {
                         return false;
+                    }
                 }
             }
             return true;
@@ -75,8 +89,8 @@ namespace UtilityExtensions.Core.Geometry
 
         public static Vector2 Lerp(Vector2 v1, Vector2 v2, double by)
         {
-            var retx = MathExtensions.Lerp(v1.x, v2.x, by);
-            var rety = MathExtensions.Lerp(v1.y, v2.y, by);
+            double retx = MathExtensions.Lerp(v1.x, v2.x, by);
+            double rety = MathExtensions.Lerp(v1.y, v2.y, by);
 
             return new Vector2(retx, rety);
         }
@@ -84,7 +98,9 @@ namespace UtilityExtensions.Core.Geometry
         public static Vector2[] GetBezierCurve(Vector2[] controlPoints, int numOfCurvePoints = 10)
         {
             if (controlPoints == null || controlPoints.Length <= 2)
+            {
                 return controlPoints;
+            }
 
             ///Used to get each point of the curve
             Vector2 GetPoint(Vector2[] points, double by)
@@ -104,8 +120,8 @@ namespace UtilityExtensions.Core.Geometry
                 Vector2[] newPoints = new Vector2[points.Length - 1];
                 for (int i = 0; i < points.Length - 1; i++)
                 {
-                    var v1 = points[i];
-                    var v2 = points[i + 1];
+                    Vector2 v1 = points[i];
+                    Vector2 v2 = points[i + 1];
 
                     newPoints[i] = Lerp(v1, v2, by);
                 }

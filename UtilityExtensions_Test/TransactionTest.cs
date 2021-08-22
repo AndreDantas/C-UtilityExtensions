@@ -1,9 +1,5 @@
-﻿using System;
-using System.Data;
-using System.Collections.Generic;
-using System.Text;
+﻿using NUnit.Framework;
 using UtilityExtensions.Core.Transactions;
-using NUnit.Framework;
 
 namespace UtilityExtensions_Test
 {
@@ -11,76 +7,77 @@ namespace UtilityExtensions_Test
     {
         private class Add10Transaction : Transaction
         {
-            public int value { get; private set; }
+            public int Value { get; private set; }
 
             public Add10Transaction(int value)
             {
-                this.value = value;
+                Value = value;
             }
 
             protected override void InternalExecute()
             {
-                value += 10;
+                Value += 10;
             }
 
             protected override void InternalRollback()
             {
-                value -= 10;
+                Value -= 10;
             }
         }
 
         private class StringUpperCaseTransaction : Transaction
         {
-            public string result { get; private set; }
-            public string initial;
+            public string Result { get; private set; }
+            private string input;
 
             public StringUpperCaseTransaction(string value)
             {
-                initial = value;
-                this.result = value;
+                input = value;
+                Result = value;
             }
 
             protected override void InternalExecute()
             {
-                result = result.ToUpper();
+                Result = input.ToUpper();
             }
 
             protected override void InternalRollback()
             {
-                result = initial;
+                Result = input;
             }
         }
 
         [Test]
         public void ExecuteSuccessTransaction()
         {
-            var tran1 = new Add10Transaction(10);
+            Add10Transaction tran1 = new Add10Transaction(10);
             TransactionManager.Add(tran1).Execute();
 
-            Assert.IsTrue(tran1.value == 20);
+            Assert.IsTrue(tran1.Value == 20);
         }
 
         [Test]
         public void RollbackSuccessTransaction()
         {
-            var tran1 = new Add10Transaction(10);
-            var tm = TransactionManager.Add(tran1);
+            Add10Transaction tran1 = new Add10Transaction(10);
+            TransactionManager tm = TransactionManager.Add(tran1);
             tm.Execute();
             tm.Rollback();
 
-            Assert.IsTrue(tran1.value == 10);
+            Assert.IsTrue(tran1.Value == 10);
         }
 
         [Test]
         public void ExecuteFailTransaction()
         {
-            var tran1 = new StringUpperCaseTransaction(null);
+            StringUpperCaseTransaction tran1 = new StringUpperCaseTransaction(null);
             try
             {
                 TransactionManager.Add(tran1).Execute();
             }
-            catch (TransactionException e)
+            catch (TransactionException)
             {
+                Assert.IsTrue(tran1.state == Transaction.State.Pending);
                 Assert.Pass();
             }
 

@@ -1,7 +1,4 @@
 ﻿using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using UtilityExtensions.Core;
 using UtilityExtensions.Extensions;
 
@@ -19,6 +16,7 @@ namespace UtilityExtensions_Test
             Assert.IsTrue(n.Double.CloseTo(3.932));
             Assert.IsTrue(n.Float.CloseTo(3.932f));
             Assert.IsTrue(n.WithPrecision(3).Decimal == 3.932m);
+            Assert.IsTrue(n.WithPrecision(2).Decimal == 3.93m);
         }
 
         [Test]

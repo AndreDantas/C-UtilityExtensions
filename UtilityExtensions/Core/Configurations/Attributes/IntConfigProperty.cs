@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace UtilityExtensions.Core.Configurations.Attributes
 {
@@ -14,8 +10,14 @@ namespace UtilityExtensions.Core.Configurations.Attributes
         {
         }
 
-        public override object ConvertFromString(string s) => int.TryParse(s, out int result) ? result : int.TryParse(@default, out result) ? result : 0;
+        public override object ConvertFromString(string s)
+        {
+            return int.TryParse(s, out int result) ? result : int.TryParse(@default, out result) ? result : 0;
+        }
 
-        public override string ConvertToString(object o) => o is int value ? value.ToString() : @default;
+        public override string ConvertToString(object o)
+        {
+            return o is int value ? value.ToString() : @default;
+        }
     }
 }
